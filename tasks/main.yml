@@ -1,0 +1,41 @@
+---
+- name: Create Config Dir
+  ansible.builtin.file:
+    path: "{{ config_dir }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
+    state: directory
+  loop: "{{ telegraf_instances | dict2items }}"
+  loop_control:
+    label: "{{ instance_id }}"
+  vars:
+    instance_id: "{{ item.key }}"
+    telegraf_instance: "{{ item.value }}"
+    config_dir: "{{ telegraf_instance.config_dir | default(telegraf_config_dir) }}"
+    owner: "{{ telegraf_instance.config_dir_owner | default(telegraf_config_dir_owner) }}"
+    group: "{{ telegraf_instance.config_dir_group | default(telegraf_config_dir_group) }}"
+    mode: "{{ telegraf_instance.config_dir_mode | default(telegraf_config_dir_mode) }}"
+  
+
+- name: Template Instance Config
+  ansible.builtin.template:
+    src: 'telegraf.conf.j2'
+    dest: "{{ config_dir }}/{{ config_filename }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
+    backup: true
+  loop: "{{ telegraf_instances | dict2items }}"
+  loop_control:
+    label: "{{ instance_id }}"
+  register: telegraf_config_template_result
+  vars:
+    instance_id: "{{ item.key }}"
+    telegraf_instance: "{{ item.value }}"
+    config_dir: "{{ telegraf_instance.config_dir | default(telegraf_config_dir) }}"
+    config_filename: "{{ telegraf_instance.config_file_name | default(telegraf_config_file_name) }}"
+    owner: "{{ telegraf_instance.config_file_owner | default(telegraf_config_file_owner) }}"
+    group: "{{ telegraf_instance.config_file_group | default(telegraf_config_file_group) }}"
+    mode: "{{ telegraf_instance.config_file_mode | default(telegraf_config_file_mode) }}"
+  notify: restart_telegraf

@@ -1,0 +1,3 @@
+{% if telegraf_instance | default(none) is not none %}
+{{ telegraf_instance.config | to_toml }}
+{% endif %}

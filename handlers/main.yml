@@ -1,0 +1,36 @@
+---
+- name: Restart Telegraf Container
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    state: started
+    restart: true
+  loop: "{{ telegraf_config_template_result.results }}"
+  loop_control:
+    label: "{{ instance_id }}"
+  vars:
+    instance_id: "{{ item.item.key }}"
+    changed: "{{ item.changed }}"
+    instance_containerized: "{{ item.item.value.containerized | default(telegraf_containerized) }}"
+    container_name: "{{ item.item.value.container_options.name | default(none) }}"
+  when:
+    - changed
+    - instance_containerized
+    - container_name is not none
+  listen: restart_telegraf
+
+- name: Restart Telegraf Service
+  service:
+    name: telegraf.service
+    state: restarted
+  loop: "{{ telegraf_config_template_result.results }}"
+  loop_control:
+    label: "{{ instance_id }}"
+  vars:
+    instance_id: "{{ item.item.key }}"
+    changed: "{{ item.changed }}"
+    instance_containerized: "{{ item.item.value.containerized | default(telegraf_containerized) }}"
+  when:
+    - changed
+    - not instance_containerized
+  listen: restart_telegraf
+

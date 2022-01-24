@@ -1,0 +1,100 @@
+all:
+  hosts:
+    localhost:
+      telegraf_config_dir: "{{ playbook_dir }}/outputs"
+      telegraf_instances:
+        telegraf:
+          name: syslog-ng
+          config_dir_mode: '0777'
+          config_file_mode: '0777'
+          config:
+            agent:
+              interval: "10s"
+              round_interval: true
+              metric_batch_size: 1000
+              metric_buffer_limit: 10000
+              collection_jitter: "0s"
+              flush_interval: "10s"
+              flush_jitter: "0s"
+              precision: ""
+              hostname: ""
+              omit_hostname: false
+            outputs:
+              influxdb:
+                - urls:
+                    - "http://influxdb:8086"
+                  database: telegraf
+                  skip_database_creation: true
+                  retention_policy: ""
+                  timeout: 5s
+                  username: telegraf
+                  password: telegraf_pass
+                  tagpass:
+                    instance:
+                      - test
+            inputs:
+              snmp:
+                - interval: 1m
+                  agents:
+                    - host1.local
+                    - host2.local
+                  version: 3
+                  retries: 3
+                  sec_level: authPriv
+                  sec_name: monitoring
+                  auth_protocol: SHA
+                  priv_protocol: AES
+                  auth_password: "monitoring_auth_pass"
+                  priv_password: "monitoring_priv_pass"
+                  tags:
+                    instance: "test"
+                  field:
+                    - oid: 'RFC1213-MIB::sysName.0'
+                      name: hostname
+                      is_tag: true
+                  table:
+                    - oid: 'IF-MIB::ifXTable'
+                      name: interfaces
+                      inherit_tags:
+                        - hostname
+                      field:
+                        - oid: 'IF-MIB::ifName'
+                          name: short_name
+                          is_tag: true
+                        - oid: 'IF-MIB::ifDescr'
+                          name: name
+                          is_tag: true
+                        - oid: 'IF-MIB::ifAlias'
+                          name: description
+                          is_tag: true
+                        - oid: 'IF-MIB::ifAdminStatus'
+                        - oid: 'IF-MIB::ifOperStatus'
+                  tagpass:
+                    description:
+                      - '*@MON*'
+              ping:
+                - interval: 30s
+                  urls:
+                    - host1.local
+                    - host2.local
+                  method: native
+                  count: 5
+                  ping_interval: 1
+                  timeout: 1
+                  tags:
+                    instance: test
+
+
+        # telegraf_2:
+        #   name: telegraf_2
+        #   config_dir_mode: '0777'
+        #   config_file_mode: '0777'
+        #   config_file_name: telegraf2.conf
+        #   containerized: true
+        #   container_options:
+        #     name: telegraf_2
+
+  vars:
+    ansible_user: mhudec
+    ansible_become: true
+          

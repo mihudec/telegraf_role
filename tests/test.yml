@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - name: "mihudec.telegraf_role"
+
+  tasks:
+    - name: Assert Configs 
+      assert:
+        that:
+          "{{ lookup('file', want_path) == lookup('file', have_path) }}"
+      loop:
+        - telegraf.conf
+        # - telegraf2.conf
+      vars:
+        want_path: "{{ playbook_dir }}/resources/{{ item }}"
+        have_path: "{{ playbook_dir }}/outputs/{{ item }}"

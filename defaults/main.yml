@@ -1,0 +1,16 @@
+---
+telegraf_containerized: false
+telegraf_container_name: Null
+telegraf_config_dir: '/etc/telegraf'
+telegraf_config_dir_owner: root
+telegraf_config_dir_group: root
+telegraf_config_dir_mode: '0640'
+telegraf_config_file_name: 'telegraf.conf'
+telegraf_config_file_owner: root
+telegraf_config_file_group: root
+telegraf_config_file_mode: '0640'
+
+
+telegraf_options: []
+telegraf_outputs: []
+telegraf_inputs: []
