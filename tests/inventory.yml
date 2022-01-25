@@ -4,7 +4,7 @@ all:
       telegraf_config_dir: "{{ playbook_dir }}/outputs"
       telegraf_instances:
         telegraf:
-          name: syslog-ng
+          name: telegraf
           config_dir_mode: '0777'
           config_file_mode: '0777'
           config:
@@ -83,16 +83,6 @@ all:
                   timeout: 1
                   tags:
                     instance: test
-
-
-        # telegraf_2:
-        #   name: telegraf_2
-        #   config_dir_mode: '0777'
-        #   config_file_mode: '0777'
-        #   config_file_name: telegraf2.conf
-        #   containerized: true
-        #   container_options:
-        #     name: telegraf_2
 
   vars:
     ansible_user: mhudec
